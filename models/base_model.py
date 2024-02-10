@@ -1,19 +1,14 @@
 #!/usr/bin/python3
-"""Module for BaseModel class."""
-
+"""BaseModel class module."""
 import uuid
 from datetime import datetime
-
+from models import storage
 
 class BaseModel:
     """Defines all common attributes/methods for other classes."""
 
     def __init__(self, *args, **kwargs):
-        """Initializes the BaseModel instance.
-
-        Attributes can be set via kwargs with keys as attribute names.
-        Special handling to convert from string to datetime.
-        """
+        """Initializes the BaseModel instance."""
         if kwargs:
             for key, value in kwargs.items():
                 if key == '__class__':
@@ -24,21 +19,15 @@ class BaseModel:
         else:
             self.id = str(uuid.uuid4())
             self.created_at = self.updated_at = datetime.now()
-
-    def __str__(self):
-        """Returns the string representation of the BaseModel instance."""
-        return f"[{self.__class__.__name__}] ({self.id}) {self.__dict__}"
+            storage.new(self)
 
     def save(self):
-        """Updates the instance's attribute with the current datetime."""
+        """Updates 'updated_at' and saves to file storage."""
         self.updated_at = datetime.now()
+        storage.save()
 
     def to_dict(self):
-        """Returns a dictionary containing all keys of the instance's __dict__
-
-        This includes the class name the key '__class__'. The 'created_at' and
-        'updated_at' datetime objects are converted to strings in ISO format.
-        """
+        """Returns a dictionary containing all keys/values of the instance's __dict__."""
         my_dict = self.__dict__.copy()
         my_dict['__class__'] = self.__class__.__name__
         my_dict['created_at'] = self.created_at.isoformat()
