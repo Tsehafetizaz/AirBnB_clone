@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from models import storage
 
+
 class BaseModel:
     """Defines all common attributes/methods for other classes."""
 
@@ -27,7 +28,7 @@ class BaseModel:
         storage.save()
 
     def to_dict(self):
-        """Returns a dictionary containing all keys/values of the instance's __dict__."""
+        """Returns a dictionary containing all keys instance's __dict__."""
         my_dict = self.__dict__.copy()
         my_dict['__class__'] = self.__class__.__name__
         my_dict['created_at'] = self.created_at.isoformat()
