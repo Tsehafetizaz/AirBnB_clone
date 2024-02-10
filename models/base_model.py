@@ -6,32 +6,37 @@ from datetime import datetime
 
 
 class BaseModel:
-    """Defines all common attributes/methods for other classes.
+    """Defines all common attributes/methods for other classes."""
 
-    Attributes:
-        id (str): Unique id for each instance, assigned with an UUID.
-        created_at (datetime): Datetime when an instance is created.
-        updated_at (datetime): Datetime when an instance is updated.
-    """
+    def __init__(self, *args, **kwargs):
+        """Initializes the BaseModel instance.
 
-    def __init__(self):
-        """Initializes the BaseModel instance."""
-        self.id = str(uuid.uuid4())
-        self.created_at = self.updated_at = datetime.now()
+        Attributes can be set via kwargs with keys as attribute names.
+        Special handling to convert from string to datetime.
+        """
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == '__class__':
+                    continue
+                elif key in ('created_at', 'updated_at'):
+                    value = datetime.fromisoformat(value)
+                setattr(self, key, value)
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = self.updated_at = datetime.now()
 
     def __str__(self):
         """Returns the string representation of the BaseModel instance."""
-        class_name = self.__class__.__name__
-        return f"[{class_name}] ({self.id}) {self.__dict__}"
+        return f"[{self.__class__.__name__}] ({self.id}) {self.__dict__}"
 
     def save(self):
-        """Updates the instance's 'updated_at' attribute current datetime."""
+        """Updates the instance's attribute with the current datetime."""
         self.updated_at = datetime.now()
 
     def to_dict(self):
-        """Returns a dictionary containing all keys/values instance __dict__.
+        """Returns a dictionary containing all keys of the instance's __dict__
 
-        Includes the class name under the key '__class__'. The 'created_at'
+        This includes the class name the key '__class__'. The 'created_at' and
         'updated_at' datetime objects are converted to strings in ISO format.
         """
         my_dict = self.__dict__.copy()
