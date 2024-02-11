@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Console module for the HBNBCommand interpreter."""
 import cmd
-from models import storage
+from models import storage, classes
 from models.base_model import BaseModel
 from models.user import User
 # Add other model imports here if needed
@@ -108,6 +108,19 @@ class HBNBCommand(cmd.Cmd):
             return
         setattr(storage.all()[key], args[2], args[3].strip('"'))
         storage.all()[key].save()
+
+    def do_create(self, arg):
+        """Creates a new instance of BaseModel, saves it, and prints the id."""
+        args = arg.split()
+        if not arg:
+            print("** class name missing **")
+            return
+        if args[0] in classes:
+            instance = classes[args[0]]()
+            instance.save()
+            print(instance.id)
+        else:
+            print("** class doesn't exist **") == '__main__':
 
 
 if __name__ == '__main__':
