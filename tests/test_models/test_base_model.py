@@ -1,46 +1,79 @@
 #!/usr/bin/python3
+"""
+This module contains unittests for the BaseModel class.
+"""
+
+import os
 import unittest
-from datetime import datetime
 from models.base_model import BaseModel
 
 
 class TestBaseModel(unittest.TestCase):
-    """Test cases for the BaseModel class."""
+    """
+    Defines test cases for the BaseModel class.
+    """
+
+    def setUp(self):
+        """
+        Sets up test cases, including renaming the storage file if it exists.
+        """
+        if os.path.exists("file.json"):
+            os.rename("file.json", "tmp.json")
+
+    def tearDown(self):
+        """
+        Cleans up after tests, restoring the original storage file.
+        """
+        if os.path.exists("file.json"):
+            os.remove("file.json")
+        if os.path.exists("tmp.json"):
+            os.rename("tmp.json", "file.json")
 
     def test_init(self):
-        """Test initialization of BaseModel instances."""
-        instance = BaseModel()
-        self.assertTrue(isinstance(instance, BaseModel))
-        self.assertTrue(hasattr(instance, "id"))
-        self.assertTrue(hasattr(instance, "created_at"))
-        self.assertTrue(hasattr(instance, "updated_at"))
-        self.assertTrue(isinstance(instance.created_at, datetime))
-        self.assertTrue(isinstance(instance.updated_at, datetime))
-
-    def test_str_representation(self):
-        """Test the string representation of a BaseModel instance."""
-        instance = BaseModel()
-        expected = f"[BaseModel] ({instance.id}) {instance.__dict__}"
-        self.assertEqual(expected, instance.__str__())
+        """
+        Tests the initialization of BaseModel instances.
+        """
+        my_model = BaseModel()
+        self.assertIsNotNone(my_model.id)
+        self.assertIsNotNone(my_model.created_at)
+        self.assertIsNotNone(my_model.updated_at)
 
     def test_save(self):
-        """Test the save method of the BaseModel class."""
-        instance = BaseModel()
-        old_updated_at = instance.updated_at
-        instance.save()
-        self.assertNotEqual(old_updated_at, instance.updated_at)
+        """
+        Tests the save method of BaseModel instances.
+        """
+        my_model = BaseModel()
+        initial_updated_at = my_model.updated_at
+        my_model.save()
+        self.assertNotEqual(initial_updated_at, my_model.updated_at)
 
     def test_to_dict(self):
-        """Test conversion of BaseModel instance to a dictionary."""
-        instance = BaseModel()
-        instance_dict = instance.to_dict()
-        self.assertEqual(instance_dict['__class__'], 'BaseModel')
-        self.assertEqual(instance_dict['id'], instance.id)
-        self.assertTrue('created_at' in instance_dict)
-        self.assertTrue('updated_at' in instance_dict)
-        self.assertTrue(isinstance(instance_dict['created_at'], str))
-        self.assertTrue(isinstance(instance_dict['updated_at'], str))
+        """
+        Tests the to_dict method, ensuring it returns a dictionary with the
+        correct keys and formats.
+        """
+        my_model = BaseModel()
+        my_model_dict = my_model.to_dict()
+        self.assertIsInstance(my_model_dict, dict)
+        self.assertEqual(my_model_dict["__class__"], 'BaseModel')
+        self.assertEqual(my_model_dict['id'], my_model.id)
+        self.assertEqual(
+            my_model_dict["created_at"],
+            my_model.created_at.isoformat(),
+        )
+        self.assertEqual(
+            my_model_dict["updated_at"],
+            my_model.updated_at.isoformat(),
+        )
+
+    def test_str(self):
+        """
+        Tests the string representation of BaseModel instances.
+        """
+        my_model = BaseModel()
+        expected_str = f"[BaseModel] ({my_model.id}) {my_model.__dict__}"
+        self.assertEqual(str(my_model), expected_str)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
