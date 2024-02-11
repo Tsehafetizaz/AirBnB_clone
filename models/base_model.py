@@ -2,7 +2,7 @@
 """BaseModel class for Flask applications."""
 import uuid
 from datetime import datetime
-
+from uuid import uuid4
 
 class BaseModel:
     """Base class for all models."""
