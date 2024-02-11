@@ -1,100 +1,49 @@
-#!/usr/bin/python3
+#!/usr/bin/python
+"""
+Console module to handle command line interactions.
+"""
+
 import cmd
+import re
+import shlex
+import ast
 from models import storage
 from models.base_model import BaseModel
+from models.user import User
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.city import City
 
 
-class HBNBCommand(cmd.Cmd):
-    """HBNB console."""
-    prompt = '(hbnb) '
+def split_curly_braces(e_arg):
+    """
+    Splits the argument string at curly braces for update method parsing.
 
-    def do_quit(self, arg):
-        """Quit command to exit the program."""
-        return True
+    Args:
+        e_arg (str): The argument string containing potential curly braces.
 
-    def do_EOF(self, arg):
-        """EOF command to exit the program."""
-        print("")
-        return True
+    Returns:
+        tuple: The ID and a dictionary of attribute-value pairs if curly
+               braces are found, or a modified version of `e_arg` otherwise.
+    """
+    curly_braces = re.search(r"\{(.*?)\}", e_arg)
+    if curly_braces:
+        id_with_comma = shlex.split(e_arg[:curly_braces.span()[0]])
+        obj_id = [i.strip(",") for i in id_with_comma][0]
 
-    def emptyline(self):
-        """An empty line + ENTER shouldn’t execute anything."""
-        pass
-
-    def do_create(self, arg):
-        """Creates a new instance of BaseModel, saves it, and prints the id."""
-        if len(arg) == 0:
-            print("** class name missing **")
-            return
+        str_data = curly_braces.group(1)
         try:
-            instance = eval(f"{arg}()")
-            instance.save()
-            print(instance.id)
+            arg_dict = ast.literal_eval("{" + str_data + "}")
         except Exception:
-            print("** class doesn't exist **")
-
-    def do_show(self, arg):
-        """Prints the string representation of an instance on class name id."""
-        args = arg.split()
-        if len(args) == 0:
-            print("** class name missing **")
+            print("**  invalid dictionary format **")
             return
-        if len(args) == 1:
-            print("** instance id missing **")
-            return
-        all_objs = storage.all()
-        key = f"{args[0]}.{args[1]}"
-        if key in all_objs:
-            print(all_objs[key])
-        else:
-            print("** no instance found **")
-
-    def do_destroy(self, arg):
-        """Deletes an instance based on class name and id."""
-        args = arg.split()
-        if len(args) == 0:
-            print("** class name missing **")
-            return
-        if len(args) == 1:
-            print("** instance id missing **")
-            return
-        all_objs = storage.all()
-        key = f"{args[0]}.{args[1]}"
-        if key in all_objs:
-            del all_objs[key]
-            storage.save()
-        else:
-            print("** no instance found **")
-
-    def do_all(self, arg):
-        """Prints all string representations of all instances."""
-        all_objs = storage.all()
-        for obj_id in all_objs.keys():
-            print(all_objs[obj_id])
-
-    def do_update(self, arg):
-        """Updates an instance based on class name and id by adding """
-        args = arg.split()
-        if len(args) == 0:
-            print("** class name missing **")
-            return
-        if len(args) == 1:
-            print("** instance id missing **")
-            return
-        if len(args) == 2:
-            print("** attribute name missing **")
-            return
-        if len(args) == 3:
-            print("** value missing **")
-            return
-        all_objs = storage.all()
-        key = f"{args[0]}.{args[1]}"
-        if key in all_objs:
-            setattr(all_objs[key], args[2], args[3])
-            all_objs[key].save()
-        else:
-            print("** no instance found **")
-
-
-if __name__ == '__main__':
-    HBNBCommand().cmdloop()
+        return obj_id, arg_dict
+    else:
+        commands = e_arg.split(",")
+        if commands:
+            obj_id = commands[0]
+            attr_name = commands[1] if len(commands) > 1 else ""
+            attr_value = commands[2] if len(commands) > 2 else ""
+            return obj_id, f"{attr_name} {attr_value}"
