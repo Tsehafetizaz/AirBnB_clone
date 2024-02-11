@@ -1,269 +1,196 @@
-#!/usr/bin/python
-"""this module is for consule"""
+#!/usr/bin/python3
+"""
+This module defines the HolbertonBnB command interpreter.
+"""
+
 import cmd
 import re
-import shlex
-import ast
+from shlex import split
+
 from models import storage
 from models.base_model import BaseModel
 from models.user import User
-from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
 from models.state import State
 from models.city import City
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
 
 
-def split_curly_braces(e_arg):
-    """Splits the curly braces for the update method"""
-    curly_braces = re.search(r"\{(.*?)\}", e_arg)
+def parse(arg):
+    """Parse an argument string.
 
-    if curly_braces:
-        id_with_comma = shlex.split(e_arg[:curly_braces.span()[0]])
-        id = [i.strip(",") for i in id_with_comma][0]
+    Args:
+        arg (str): The argument string to parse.
 
-        str_data = curly_braces.group(1)
-        try:
-            arg_dict = ast.literal_eval("{" + str_data + "}")
-        except Exception:
-            print("**  invalid dictionary format **")
-            return
-        return id, arg_dict
+    Returns:
+        list: A list of arguments parsed from the string.
+    """
+    curly_braces = re.search(r"\{(.*?)\}", arg)
+    brackets = re.search(r"\[(.*?)\]", arg)
+
+    if curly_braces is None:
+        if brackets is None:
+            return [i.strip(",") for i in split(arg)]
+        else:
+            lexer = split(arg[:brackets.span()[0]])
+            ret_list = [i.strip(",") for i in lexer]
+            ret_list.append(brackets.group())
+            return ret_list
     else:
-        commands = e_arg.split(",")
-        if commands:
-            try:
-                id = commands[0]
-            except Exception:
-                return "", ""
-            try:
-                attr_name = commands[1]
-            except Exception:
-                return id, ""
-            try:
-                attr_value = commands[2]
-            except Exception:
-                return id, attr_name
-            return f"{id}", f"{attr_name} {attr_value}"
+        lexer = split(arg[:curly_braces.span()[0]])
+        ret_list = [i.strip(",") for i in lexer]
+        ret_list.append(curly_braces.group())
+        return ret_list
 
 
 class HBNBCommand(cmd.Cmd):
-    """ console for HBNBCommand"""
+    """HolbertonBnB command interpreter class.
+
+    Attributes:
+        prompt (str): The command prompt.
+    """
     prompt = "(hbnb) "
-    valid_classes = ["BaseModel", "User", "Amenity",
-                     "Place", "Review", "State", "City"]
+    __classes = {
+        "BaseModel",
+        "User",
+        "State",
+        "City",
+        "Place",
+        "Amenity",
+        "Review"
+    }
 
     def emptyline(self):
-        """Do nothing when line is entered."""
+        """Override method to do nothing upon receiving an empty line."""
         pass
 
-    def do_EOF(self, arg):
-        """end of file signal to exit the program"""
-        return True
+    def default(self, arg):
+        """Default behavior for invalid input."""
+        arg_dict = {
+            "all": self.do_all,
+            "show": self.do_show,
+            "destroy": self.do_destroy,
+            "count": self.do_count,
+            "update": self.do_update
+        }
+        match = re.search(r"\.", arg)
+        if match:
+            arg_list = [arg[:match.span()[0]], arg[match.span()[1]:]]
+            match = re.search(r"\((.*?)\)", arg_list[1])
+            if match:
+                command = [arg_list[1][:match.span()[0]], match.group()[1:-1]]
+                if command[0] in arg_dict:
+                    call = "{} {}".format(arg_list[0], command[1])
+                    return arg_dict[command[0]](call)
+
+        print("*** Unknown syntax: {}".format(arg))
+        return False
 
     def do_quit(self, arg):
-        """quit command and exit the program"""
+        """Quit command to exit the program."""
+        return True
+
+    def do_EOF(self, arg):
+        """EOF command to exit the program."""
+        print("")
         return True
 
     def do_create(self, arg):
-        """
-	creates new instance of BaseModel save toJSON file 
-	Usage: create <class_name>
-        """
-        commands = shlex.split(arg)
-
-        if len(commands) == 0:
+        """Create a new instance of a given class."""
+        arg_list = parse(arg)
+        if not arg_list:
             print("** class name missing **")
-        elif commands[0] not in self.valid_classes:
+        elif arg_list[0] not in self.__classes:
             print("** class doesn't exist **")
         else:
-            new_instance = eval(f"{commands[0]}()")
+            print(eval(arg_list[0])().id)
             storage.save()
-            print(new_instance.id)
 
     def do_show(self, arg):
-        """Shows representation of a string instance"""
-        commands = shlex.split(arg)
-
-        if len(commands) == 0:
+        """Display the string representation of an instance."""
+        arg_list = parse(arg)
+        obj_dict = storage.all()
+        if not arg_list:
             print("** class name missing **")
-        elif commands[0] not in self.valid_classes:
+        elif arg_list[0] not in self.__classes:
             print("** class doesn't exist **")
-        elif len(commands) < 2:
+        elif len(arg_list) == 1:
             print("** instance id missing **")
+        elif "{}.{}".format(arg_list[0], arg_list[1]) not in obj_dict:
+            print("** no instance found **")
         else:
-            objects = storage.all()
-
-            key = "{}.{}".format(commands[0], commands[1])
-            if key in objects:
-                print(objects[key])
-            else:
-                print("** no instance found **")
+            print(obj_dict["{}.{}".format(arg_list[0], arg_list[1])])
 
     def do_destroy(self, arg):
-        """Delete an instance """
-        commands = shlex.split(arg)
-
-        if len(commands) == 0:
+        """Delete an instance based on the class name and id."""
+        arg_list = parse(arg)
+        obj_dict = storage.all()
+        if not arg_list:
             print("** class name missing **")
-        elif commands[0] not in self.valid_classes:
+        elif arg_list[0] not in self.__classes:
             print("** class doesn't exist **")
-        elif len(commands) < 2:
+        elif len(arg_list) == 1:
             print("** instance id missing **")
+        elif "{}.{}".format(arg_list[0], arg_list[1]) not in obj_dict.keys():
+            print("** no instance found **")
         else:
-            objects = storage.all()
-            key = "{}.{}".format(commands[0], commands[1])
-            if key in objects:
-                del objects[key]
-                storage.save()
-            else:
-                print("** no instance found **")
+            del obj_dict["{}.{}".format(arg_list[0], arg_list[1])]
+            storage.save()
 
     def do_all(self, arg):
-        """
-        Print the string representation instances
-        """
-        objects = storage.all()
-
-        commands = shlex.split(arg)
-
-        if len(commands) == 0:
-            for key, value in objects.items():
-                print(str(value))
-        elif commands[0] not in self.valid_classes:
+        """Display all instances of a class, or all instances."""
+        arg_list = parse(arg)
+        if arg_list and arg_list[0] not in self.__classes:
             print("** class doesn't exist **")
         else:
-            for key, value in objects.items():
-                if key.split('.')[0] == commands[0]:
-                    print(str(value))
+            obj_list = [
+                obj.__str__() for obj in storage.all().values()
+                if not arg_list or obj.__class__.__name__ == arg_list[0]
+            ]
+
+            print(obj_list)
 
     def do_count(self, arg):
-        """
-        Counts and retrieves instances of a class
-        """
-        objects = storage.all()
-
-        commands = shlex.split(arg)
-
-        if arg:
-            cls_nm = commands[0]
-
-        count = 0
-
-        if commands:
-            if cls_nm in self.valid_classes:
-                for obj in objects.values():
-                    if obj.__class__.__name__ == cls_nm:
-                        count += 1
-                print(count)
-            else:
-                print("** invalid class name **")
-        else:
-            print("** class name missing **")
+        """Count the number of instances of a given class."""
+        arg_list = parse(arg)
+        count = sum(1 for obj in storage.all().values()
+                    if obj.__class__.__name__ == arg_list[0])
+        print(count)
 
     def do_update(self, arg):
-        """
-        Update an instance by adding
-        """
-        commands = shlex.split(arg)
+        """Update an instance based on the class name and id."""
+        arg_list = parse(arg)
+        obj_dict = storage.all()
 
-        if len(commands) == 0:
+        if not arg_list:
             print("** class name missing **")
-        elif commands[0] not in self.valid_classes:
+            return False
+        if arg_list[0] not in self.__classes:
             print("** class doesn't exist **")
-        elif len(commands) < 2:
+            return False
+        if len(arg_list) == 1:
             print("** instance id missing **")
-        else:
-            objects = storage.all()
-
-            key = "{}.{}".format(commands[0], commands[1])
-            if key not in objects:
-                print("** no instance found **")
-            elif len(commands) < 3:
-                print("** attribute name missing **")
-            elif len(commands) < 4:
-                print("** value missing **")
-            else:
-                obj = objects[key]
-                curly_braces = re.search(r"\{(.*?)\}", arg)
-
-                if curly_braces:
-                    try:
-                        str_data = curly_braces.group(1)
-
-                        arg_dict = ast.literal_eval("{" + str_data + "}")
-
-                        attribute_names = list(arg_dict.keys())
-                        attribute_values = list(arg_dict.values())
-                        try:
-                            attr_name1 = attribute_names[0]
-                            attr_value1 = attribute_values[0]
-                            setattr(obj, attr_name1, attr_value1)
-                        except Exception:
-                            pass
-                        try:
-                            attr_name2 = attribute_names[1]
-                            attr_value2 = attribute_values[1]
-                            setattr(obj, attr_name2, attr_value2)
-                        except Exception:
-                            pass
-                    except Exception:
-                        pass
-                else:
-
-                    attr_name = commands[2]
-                    attr_value = commands[3]
-
-                    try:
-                        attr_value = eval(attr_value)
-                    except Exception:
-                        pass
-                    setattr(obj, attr_name, attr_value)
-
-                obj.save()
-
-    def default(self, arg):
-        """
-        Default behavior for cmd module
-        """
-        arg_list = arg.split('.')
-
-        cls_nm = arg_list[0]  # incoming class name
-
-        command = arg_list[1].split('(')
-
-        cmd_met = command[0]  # incoming command method
-
-        e_arg = command[1].split(')')[0]  # extra arguments
-
-        method_dict = {
-                'all': self.do_all,
-                'show': self.do_show,
-                'destroy': self.do_destroy,
-                'update': self.do_update,
-                'count': self.do_count
-                }
-
-        if cmd_met in method_dict.keys():
-            if cmd_met != "update":
-                return method_dict[cmd_met]("{} {}".format(cls_nm, e_arg))
-            else:
-                if not cls_nm:
-                    print("** class name missing **")
-                    return
-                try:
-                    obj_id, arg_dict = split_curly_braces(e_arg)
-                except Exception:
-                    pass
-                try:
-                    call = method_dict[cmd_met]
-                    return call("{} {} {}".format(cls_nm, obj_id, arg_dict))
-                except Exception:
-                    pass
-        else:
-            print("*** Unknown syntax: {}".format(arg))
+            return False
+        if "{}.{}".format(arg_list[0], arg_list[1]) not in obj_dict.keys():
+            print("** no instance found **")
             return False
 
+        if len(arg_list) == 2:
+            print("** attribute name missing **")
+            return False
+        if len(arg_list) == 3:
+            print("** value missing **")
+            return False
 
-if __name__ == '__main__':
+        obj = obj_dict["{}.{}".format(arg_list[0], arg_list[1])]
+        if len(arg_list) == 4:
+            setattr(obj, arg_list[2], eval(arg_list[3]))
+        elif type(eval(arg_list[2])) == dict:
+            for k, v in eval(arg_list[2]).items():
+                setattr(obj, k, v)
+        storage.save()
+
+
+if __name__ == "__main__":
     HBNBCommand().cmdloop()

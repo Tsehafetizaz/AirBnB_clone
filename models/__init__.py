@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-"""This module turns models into a Python package."""
-
+"""__init__ magic method for models directory"""
 from models.engine.file_storage import FileStorage
+
 
 storage = FileStorage()
 storage.reload()
