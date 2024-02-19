@@ -1,0 +1,8 @@
+/* Footer styles and responsive adjustments */
+@media only screen and (max-width: 768px) {
+    /* Adjust footer layout and content for smaller screens */
+    footer {
+        /* Example */
+        text-align: center;
+    }
+}

@@ -1,0 +1,7 @@
+/* Common styles and responsive adjustments */
+@media only screen and (max-width: 768px) {
+    /* Adjust the container width or padding for smaller screens */
+    .container {
+        padding: 0 15px; /* Add padding to prevent elements from touching the edge */
+    }
+}

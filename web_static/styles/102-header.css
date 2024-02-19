@@ -1,0 +1,8 @@
+/* Header styles and responsive adjustments */
+@media only screen and (max-width: 768px) {
+    /* Make adjustments to header elements like logo size, menu button instead of navbar, etc. */
+    header {
+        /* Example */
+        padding: 10px;
+    }
+}

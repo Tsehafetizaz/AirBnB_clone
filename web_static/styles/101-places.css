@@ -1,0 +1,19 @@
+.places {
+    /* Existing styles, if any */
+}
+
+.places-flex-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows multiple lines of items */
+    justify-content: space-between; /* Distributes space between and around content items */
+    align-items: stretch; /* Stretches the items to fill the container */
+}
+
+.places article {
+    /* Keep all the previous styling for individual articles */
+    /* Add flexbox properties if necessary */
+    margin: 20px; /* Adjust margin for spacing between articles */
+    flex: 0 1 calc(33.333% - 40px); /* Adjust the percentage and subtraction value based on the desired gutter */
+}
+
+/* Ensure the rest of your styles for amenities, reviews, etc., are included */

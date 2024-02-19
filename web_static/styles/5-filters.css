@@ -1,0 +1,37 @@
+/* Filters styles */
+.filters {
+    display: flex;
+    justify-content: space-between;
+    height: 70px;
+    background-color: white;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+}
+
+.locations, .amenities {
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.locations {
+    border-right: 1px solid #DDDDDD;
+}
+
+.locations h3, 
+.amenities h3 {
+    font-weight: 600;
+}
+
+.locations h4, 
+.amenities h4 {
+    font-weight: 400;
+    font-size: 14px;
+}
+
+button {
+    width: 20%;
+    /* other styles remain the same as in 4-filters.css */
+}

@@ -1,0 +1,14 @@
+/* Header styles */
+header {
+    background-color: white;
+    height: 70px;
+    width: 100%;
+    border-bottom: 1px solid #CCCCCC;
+    padding-left: 20px;
+    display: flex;
+    align-items: center; /* Aligns logo vertically */
+    /* Assuming there is a logo image called 'logo.png' in the images folder */
+    background-image: url('../images/logo.png');
+    background-position: 20px center;
+    background-repeat: no-repeat;
+}

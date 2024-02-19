@@ -1,0 +1,12 @@
+/* Places styles and responsive adjustments */
+@media only screen and (max-width: 768px) {
+    .places-flex-container {
+        flex-direction: column;
+    }
+    
+    .places article {
+        /* Full width minus some margin for smaller screens */
+        flex: 0 1 calc(100% - 20px);
+        margin: 10px;
+    }
+}

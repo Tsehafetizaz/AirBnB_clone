@@ -1,0 +1,51 @@
+/* Filters styles */
+.filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.locations, .amenities {
+    position: relative;
+    /* Other styles remain the same */
+}
+
+.popover {
+    display: none;
+    position: absolute;
+    background-color: #FAFAFA;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    list-style-type: none;
+    padding: 0;
+    margin-top: 2px; /* Adjust as needed */
+    width: 100%; /* Match the width of the parent */
+    z-index: 10;
+}
+
+.locations:hover .popover,
+.amenities:hover .popover {
+    display: block; /* Show the popover on hover */
+}
+
+.popover li {
+    padding: 10px; /* Adjust as needed */
+    cursor: pointer;
+}
+
+.popover li:not(:last-child) {
+    border-bottom: 1px solid #DDDDDD;
+}
+
+.popover li h2 {
+    font-size: 16px;
+    margin: 0 0 5px 0;
+}
+
+.popover li ul {
+    list-style-type: none;
+    padding-left: 20px; /* Adjust as needed */
+}
+
+/* Add specific styles for the button and other elements as needed */

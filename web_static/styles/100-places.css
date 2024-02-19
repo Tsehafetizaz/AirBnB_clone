@@ -1,0 +1,29 @@
+/* Additional styles for places */
+.places article {
+    /* Previous styles here */
+}
+
+.places .amenities, .places .reviews {
+    margin-top: 40px;
+}
+
+.places .amenities h2, .places .reviews h2 {
+    font-size: 16px;
+    border-bottom: 1px solid #DDDDDD;
+    padding-bottom: 5px;
+}
+
+.places .amenities ul, .places .reviews ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.places .reviews h3 {
+    font-size: 14px;
+}
+
+.places .reviews p {
+    font-size: 12px;
+}
+
+/* Add styles for icons and additional elements */

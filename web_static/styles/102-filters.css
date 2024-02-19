@@ -1,0 +1,14 @@
+/* Filters styles and responsive adjustments */
+@media only screen and (max-width: 768px) {
+    .filters {
+        /* Adjust filter bar design for smaller screens */
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filters .amenities, .filters .locations, .filters button {
+        /* Full width for smaller screens */
+        width: 100%;
+        margin: 5px 0; /* Add margin for spacing */
+    }
+}

@@ -1,0 +1,9 @@
+/* Global styles */
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    min-height: 100vh; /* full viewport height */
+    position: relative; /* for footer positioning */
+    padding-bottom: 60px; /* same height as footer to avoid overlap */
+}

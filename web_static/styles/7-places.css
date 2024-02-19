@@ -1,0 +1,27 @@
+.places {
+    /* You can adjust the margin and padding as needed */
+}
+
+.places > h1 {
+    font-size: 30px;
+    /* Align to the top-left corner of the section */
+    text-align: left;
+    margin: 20px 0;
+}
+
+.places article {
+    width: 390px;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #FF5A5F;
+    border-radius: 4px;
+    /* Center the article blocks. Adjust as needed for horizontal or vertical listing */
+    display: inline-block;
+    vertical-align: top;
+}
+
+.places h2 {
+    font-size: 30px;
+    text-align: center;
+    /* Additional styles if needed */
+}
