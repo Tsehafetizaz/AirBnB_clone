@@ -1,10 +1,8 @@
-#!/usr/bin/python3
-"""Simple definition of the State class."""
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship
 
-from models.base_model import BaseModel
-
-
-class State(BaseModel):
-    """Represents a state within the HBnB project."""
-
-    name = ""  # Name of the state
+class State(BaseModel, Base):
+    __tablename__ = 'states'
+    name = Column(String(128), nullable=False)
+    cities = relationship('City', backref='state', cascade='all, delete-orphan')
