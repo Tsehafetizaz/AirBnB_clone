@@ -1,13 +1,16 @@
 #!/usr/bin/python3
-"""Simple definition of the User class."""
+"""
+This module defines the User class which inherits from BaseModel and Base (SQLAlchemy)
+"""
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String
 
-from models.base_model import BaseModel
+class User(BaseModel, Base):
+    """ User class that inherits from BaseModel and Base (from SQLAlchemy) """
+    __tablename__ = 'users'
+    email = Column(String(128), nullable=False)
+    password = Column(String(128), nullable=False)
+    first_name = Column(String(128))
+    last_name = Column(String(128))
 
-
-class User(BaseModel):
-    """Defines a user for the HBnB project."""
-
-    email = ""  # Email address of the user
-    password = ""  # Password of the user
-    first_name = ""  # First name of the user
-    last_name = ""  # Last name of the user
+    # Additional methods and attributes can be added below if needed
