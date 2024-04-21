@@ -32,3 +32,7 @@ class DBStorage:
 
     def reload(self):
         # implementation here
+
+    def close(self):
+        """Releases resources associated with the current database session."""
+           self.__session.close()

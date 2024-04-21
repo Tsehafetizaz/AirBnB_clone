@@ -33,6 +33,10 @@ class FileStorage:
                     filtered_objects[key] = value
             return filtered_objects
 
+    def close(self):
+        """Deserializes the JSON file to objects for reloading data."""
+        self._objects = self.reload()     
+
     def new(self, obj):
         """Adds new object to storage dictionary."""
         key = "{}.{}".format(obj.__class__.__name__, obj.id)
