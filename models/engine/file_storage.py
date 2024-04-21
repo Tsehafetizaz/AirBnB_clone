@@ -14,13 +14,14 @@ from models.review import Review
 
 
 class FileStorage:
-    """A class that serializes instances to a JSON file & deserializes JSON file to instances."""
+    """A class that serializes instances to a JSON file and deserializes JSON
+    file to instances."""
     __file_path = "file.json"
     __objects = {}
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage.
-        
+
         Args:
             cls: The class to filter objects by. If None, returns all objects.
         """
@@ -35,7 +36,7 @@ class FileStorage:
 
     def close(self):
         """Deserializes the JSON file to objects for reloading data."""
-        self._objects = self.reload()     
+        self.__objects = self.reload()
 
     def new(self, obj):
         """Adds new object to storage dictionary."""
@@ -51,7 +52,8 @@ class FileStorage:
             json.dump(obj_dict, f)
 
     def reload(self):
-        """Deserializes the JSON file to __objects, only if the JSON file (__file_path) exists."""
+        """Deserializes the JSON file to __objects, only if the JSON file
+        (__file_path) exists."""
         try:
             with open(FileStorage.__file_path, 'r') as f:
                 objs = json.load(f)
@@ -66,9 +68,9 @@ class FileStorage:
         """Delete obj from __objects if it’s inside.
 
         Args:
-            obj: The object to delete from storage. If None, method does nothing.
+            obj: The object to delete from storag, method does nothing.
         """
         if obj is not None:
             obj_key = "{}.{}".format(obj.__class__.__name__, obj.id)
-            if obj_key in self.__objects:
-                del self.__objects[obj_key]
+            if obj_key in FileStorage.__objects:
+                del FileStorage.__objects[obj_key]
