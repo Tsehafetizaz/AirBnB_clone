@@ -1,76 +1,70 @@
 #!/usr/bin/python3
-"""
-This module contains the FileStorage class for HBnB project.
-"""
-
+"""Defines the FileStorage class."""
 import json
 from models.base_model import BaseModel
-from models.user import User
-from models.state import State
+from models.amenity import Amenity
 from models.city import City
 from models.place import Place
-from models.amenity import Amenity
 from models.review import Review
+from models.state import State
+from models.user import User
 
 
 class FileStorage:
-    """A class that serializes instances to a JSON file and deserializes JSON
-    file to instances."""
+    """Represent an abstracted storage engine.
+
+    Attributes:
+        __file_path (str): The name of the file to save objects to.
+        __objects (dict): A dictionary of instantiated objects.
+    """
+
     __file_path = "file.json"
     __objects = {}
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage.
+        """Return a dictionary of instantiated objects in __objects.
 
-        Args:
-            cls: The class to filter objects by. If None, returns all objects.
+        If a cls is specified, returns a dictionary of objects of that type.
+        Otherwise, returns the __objects dictionary.
         """
-        if cls is None:
-            return FileStorage.__objects
-        else:
-            filtered_objects = {}
-            for key, value in FileStorage.__objects.items():
-                if isinstance(value, cls):
-                    filtered_objects[key] = value
-            return filtered_objects
-
-    def close(self):
-        """Deserializes the JSON file to objects for reloading data."""
-        self.__objects = self.reload()
+        if cls is not None:
+            if type(cls) == str:
+                cls = eval(cls)
+            cls_dict = {}
+            for k, v in self.__objects.items():
+                if type(v) == cls:
+                    cls_dict[k] = v
+            return cls_dict
+        return self.__objects
 
     def new(self, obj):
-        """Adds new object to storage dictionary."""
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        FileStorage.__objects[key] = obj
+        """Set in __objects obj with key <obj_class_name>.id."""
+        self.__objects["{}.{}".format(type(obj).__name__, obj.id)] = obj
 
     def save(self):
-        """Serializes __objects to the JSON file (__file_path)."""
-        obj_dict = {}
-        for key in FileStorage.__objects:
-            obj_dict[key] = FileStorage.__objects[key].to_dict()
-        with open(FileStorage.__file_path, 'w') as f:
-            json.dump(obj_dict, f)
+        """Serialize __objects to the JSON file __file_path."""
+        odict = {o: self.__objects[o].to_dict() for o in self.__objects.keys()}
+        with open(self.__file_path, "w", encoding="utf-8") as f:
+            json.dump(odict, f)
 
     def reload(self):
-        """Deserializes the JSON file to __objects, only if the JSON file
-        (__file_path) exists."""
+        """Deserialize the JSON file __file_path to __objects, if it exists."""
         try:
-            with open(FileStorage.__file_path, 'r') as f:
-                objs = json.load(f)
-            for obj in objs.values():
-                cls_name = obj['__class__']
-                del obj['__class__']
-                self.new(eval(cls_name)(**obj))
+            with open(self.__file_path, "r", encoding="utf-8") as f:
+                for o in json.load(f).values():
+                    name = o["__class__"]
+                    del o["__class__"]
+                    self.new(eval(name)(**o))
         except FileNotFoundError:
             pass
 
     def delete(self, obj=None):
-        """Delete obj from __objects if it’s inside.
+        """Delete a given object from __objects, if it exists."""
+        try:
+            del self.__objects["{}.{}".format(type(obj).__name__, obj.id)]
+        except (AttributeError, KeyError):
+            pass
 
-        Args:
-            obj: The object to delete from storag, method does nothing.
-        """
-        if obj is not None:
-            obj_key = "{}.{}".format(obj.__class__.__name__, obj.id)
-            if obj_key in FileStorage.__objects:
-                del FileStorage.__objects[obj_key]
+    def close(self):
+        """Call the reload method."""
+        self.reload()
