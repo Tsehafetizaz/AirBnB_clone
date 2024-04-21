@@ -33,5 +33,5 @@ def c_route(text):
 
 
 if __name__ == "__main__":
-    """main function"""	
+    """main function"""
     app.run(host="0.0.0.0", port=5000)
